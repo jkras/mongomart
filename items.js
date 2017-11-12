@@ -214,18 +214,38 @@ function ItemDAO(database) {
          *
          */
 
-        var item = this.createDummyItem();
-        var items = [];
-        for (var i=0; i<5; i++) {
-            items.push(item);
-        }
+         /*
+
+            db.collection.createIndex({"title":"text", "slogan":"text", "description":"text"})
+
+            To query, you can use
+
+            db.collection.find({$text:{$search:’Doris devlin’}}, {score: {$meta: ‘textScore’}}).sort({score: {$meta:’textScore’}})
+            function(query, page, itemsPerPage, callback) {
+
+         */
+
+         var queryDoc;
+         if (query.trim() == "") {
+             queryDoc = {};
+         } else {
+             queryDoc = { "$text": {"$search": query} };
+         }
+
+         var cursor = this.db.collection("item").find(queryDoc);
+         cursor.sort({"_id":1})
+         cursor.skip(page*itemsPerPage);
+         cursor.limit(itemsPerPage);
+         cursor.toArray(function(err, pageItems) {
+             assert.equal(null, err);
+             callback(pageItems);
+         });
 
         // TODO-lab2A Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the items for the selected page
         // of search results to the callback.
-        callback(items);
     }
 
 
@@ -247,7 +267,19 @@ function ItemDAO(database) {
         * simply do this in the mongo shell.
         */
 
-        callback(numItems);
+        var queryDoc;
+        if (query.trim() == "") {
+          queryDoc = {};
+        } else {
+          queryDoc = { "$text": {"$search": query} };
+        }
+
+        this.db.collection('item')
+           .find(queryDoc)
+           .count(function(err, count) {
+              assert.equal(null, err);
+              callback(count);
+          });
     }
 
 
