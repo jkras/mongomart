@@ -137,6 +137,7 @@ function ItemDAO(database) {
 
         this.db.collection('item')
           .find(query)
+          .sort({"_id": 1})
           .skip(itemsPerPage*page)
           .limit(itemsPerPage).toArray(function(err, items) {
             callback(items);
@@ -145,9 +146,6 @@ function ItemDAO(database) {
 
         // TODO-lab1B Replace all code above (in this method).
 
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the items for the selected page
-        // to the callback.
     }
 
 
@@ -170,10 +168,22 @@ function ItemDAO(database) {
          * of a call to the getNumItems() method.
          *
          */
+         var query = {
+           "category": category
+         };
+
+         if (category === "All") {
+           delete query['category'];
+         }
+
+         this.db.collection('item')
+            .find(query).toArray(function(err, items) {
+              callback(items.length)
+          });
 
          // TODO Include the following line in the appropriate
          // place within your code to pass the count to the callback.
-        callback(numItems);
+        // callback(numItems);
     }
 
 
