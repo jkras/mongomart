@@ -296,16 +296,28 @@ function ItemDAO(database) {
          *
          */
 
-        var item = this.createDummyItem();
+        // var item = this.createDummyItem();
 
         // TODO-lab3 Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the matching item
         // to the callback.
-        callback(item);
-    }
+        // callback(item);
 
+
+        this.db.collection("item").find({_id: itemId}).toArray(function(err, docs) {
+            assert.equal(null, err);
+
+            var itemDoc = null;
+            if (docs.length > 0) {
+                itemDoc = docs[0];
+            }
+
+            callback(itemDoc);
+
+        });
+    }
 
     this.getRelatedItems = function(callback) {
         "use strict";
